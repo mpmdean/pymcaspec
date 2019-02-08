@@ -20,7 +20,7 @@ S = F[['5.1', '7.1', '8.1']]
 
 call  
 print(S)  
-to show a summary and the scanned and baseline motors. 
+to show a summary of the scanned and baseline motors. 
 
 The motors can be accessed by indexing this  
 H = S['H']  
