@@ -22,7 +22,7 @@ Calling
 S = F[3:6]  
 Assumes that you want the first '.1' scan and returns keys '3.1', '4.1', '5.1'
 
-If you request data with different scanned motors is combined this may fail. 
+The code assumes that these keys include the same set of scanned motors. Otherwise it will fail. If the combination fails it likely means that it does not make sense to combine the keys. 
 
 call  
 print(S)  
