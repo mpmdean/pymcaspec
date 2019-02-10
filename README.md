@@ -18,6 +18,10 @@ S = F['5.1']
 or from a series of scans  
 S = F[['5.1', '7.1', '8.1']]
 
+Calling  
+S = F[3:6]  
+Assumes that you want the first '.1' scan and returns keys '3.1', '4.1', '5.1'
+
 call  
 print(S)  
 to show a summary of the scanned and baseline motors. 
