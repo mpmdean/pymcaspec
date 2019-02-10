@@ -28,10 +28,12 @@ call
 print(S)  
 to show a summary of the scanned and baseline motors. 
 
-The motors can be accessed by indexing this  
+The motors can be accessed by indexing their names as   
 H = S['H']  
 I = S['APD']  
-
+or using the column number starting from zero.   
+H = S[0]  
+I = S[-1] 
 
 Non-scanned (baseline) motors are accessed as  
 S.get_baseline('chi')

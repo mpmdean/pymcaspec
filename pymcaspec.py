@@ -37,22 +37,28 @@ class scan:
 
         Parameters
         ----------
-        key : string
-            The name of the scanned motor to index from the scan.
+        key : integer or string
+            Integers label the column you can 0, 1, 2 etc.
+            Strings give the name of the scanned motor to index from the scan.
 
         Returns
         ----------
         datacol : numpy array
             1D array of data corresponding to key
         """
-        PrimaryNames = self.dataobjects[0].info['LabelNames']
         try:
-            index = [i for i, k in enumerate(PrimaryNames) if key == k][0]
-        except:
-            raise Exception("key {} not found".format(key))
-
-        datacol = np.hstack([dataobject.data[:,index]
+            datacol = np.hstack([dataobject.data[:,key]
                              for dataobject in self.dataobjects])
+        except:
+            PrimaryNames = self.dataobjects[0].info['LabelNames']
+            try:
+                index = [i for i, k in enumerate(PrimaryNames) if key == k][0]
+                datacol = np.hstack([dataobject.data[:,index]
+                                 for dataobject in self.dataobjects])
+            except:
+                raise Exception("key {} not found".format(key))
+
+            
         return datacol
 
     def get_baseline(self, key):
@@ -87,7 +93,7 @@ class scan:
         """Assign [] indexing method to try to return data associated with a key."""
         return self.index(key)
     
-    def plot(self, ax=None, xkey=None, ykey=None, monitor=None, **kwargs):
+    def plot(self, ax=None, xkey=0, ykey=-1, monitor=None, **kwargs):
         """Create x,y plot of the scan data. 
         If xkey is not specified it is assumed to be index 0
         If ykey is not specified it is assumed to be the last index.
@@ -96,9 +102,9 @@ class scan:
         
         Parameters
         ----------
-        xkey : string
+        xkey : integer or string
             key for independent axis data
-        ykey : string
+        ykey : integer or string
             key for depependent axis data
         monitor : string
             key for monitor, which is used to divide y
@@ -112,19 +118,8 @@ class scan:
         ax : matplotlib axis
             axis that contains the plotted data
             """
-        if xkey == None:
-            xdata = np.hstack([dataobject.data[:,0]
-                             for dataobject in self.dataobjects])
-            xkey = self.dataobjects[0].info['LabelNames'][0]
-        else:
-            xdata = self.index(xkey)
-            
-        if ykey == None:
-            ydata = np.hstack([dataobject.data[:,-1]
-                             for dataobject in self.dataobjects])
-            ykey = self.dataobjects[0].info['LabelNames'][-1]
-        else:
-            ydata = self.index(ykey)
+        xdata = self.index(xkey)
+        ydata = self.index(ykey)
         
         if ax is None:
             _, ax = plt.subplots()
@@ -144,8 +139,8 @@ class scan:
         art = ax.plot(xdata, ydata, **kwargs,
                       label="{}".format(label))
         
-        ax.set_xlabel(xkey)
-        ax.set_ylabel(ykey + monitor)
+        ax.set_xlabel('{}'.format(xkey))
+        ax.set_ylabel('{}'.format(ykey))
         ax.legend()
         
         return art, ax
