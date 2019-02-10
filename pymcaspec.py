@@ -14,8 +14,8 @@ class scan:
         """
         self.dataobjects = [dataobject for dataobject in dataobject_list] 
 
-    def __str__(self):
-        """Print method shows motors.
+    def get_description(self):
+        """Make string describing motors.
         This is useful for indexing motors.
 
         Returns
@@ -31,6 +31,12 @@ class scan:
                                    "Scanned Motors are:\n{}\n".format("\t".join(PrimaryNames)) +
                                    "Baseline Motors are:\n{}\n\n".format("\t".join(BaselineNames)))
         return motors_description
+    
+    def __str__(self):
+        return self.get_description()
+
+    def __repr__(self):
+        return self.get_description()
 
     def index(self, key):
         """Index a particular key (motor) from the scan.
@@ -160,8 +166,8 @@ class specfile:
         self.filename = filename
         self.source =  SpecFileDataSource.SpecFileDataSource(filename)
 
-    def __str__(self):
-        """Print method shows file header and number of scans
+    def get_description(self):
+        """Make string showing file header and number of scans
 
         Returns
         ----------
@@ -172,6 +178,12 @@ class specfile:
         header = str(self.source.getSourceInfo()['FileHeader'])
         file_description = "Specfile {}\n {} scans\n{}".format(self.filename, self.size, header)
         return file_description
+    
+    def __str__(self):
+        return self.get_description()
+
+    def __repr__(self):
+        return self.get_description()
 
     def index(self, key):
         """Index a particular scan file.
