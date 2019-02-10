@@ -1,5 +1,6 @@
 import PyMca5.PyMcaCore.SpecFileDataSource as SpecFileDataSource
 import numpy as np
+from matplotlib import pyplot as plt
 
 class scan:
     """Container for scan in spec file"""
@@ -9,7 +10,7 @@ class scan:
         Parameters
         ----------
         dataobject_list :  list of PyMca5.PyMcaCore.DataObject.DataObject
-            List of scan container from PyMCA
+            The scan contains these dataobjects/keys
         """
         self.dataobjects = [dataobject for dataobject in dataobject_list] 
 
@@ -85,6 +86,70 @@ class scan:
     def __getitem__(self, key):
         """Assign [] indexing method to try to return data associated with a key."""
         return self.index(key)
+    
+    def plot(self, ax=None, xkey=None, ykey=None, monitor=None, **kwargs):
+        """Create x,y plot of the scan data. 
+        If xkey is not specified it is assumed to be index 0
+        If ykey is not specified it is assumed to be the last index.
+        label can be passed to override the legend label.
+        Otherwise it is the scan
+        
+        Parameters
+        ----------
+        xkey : string
+            key for independent axis data
+        ykey : string
+            key for depependent axis data
+        monitor : string
+            key for monitor, which is used to divide y
+        kwargs : 
+            Key word arguments are passed to ax.plot()
+        
+        Returns
+        --------
+        art : matplotlib artist
+            artist object created in plot
+        ax : matplotlib axis
+            axis that contains the plotted data
+            """
+        if xkey == None:
+            xdata = np.hstack([dataobject.data[:,0]
+                             for dataobject in self.dataobjects])
+            xkey = self.dataobjects[0].info['LabelNames'][0]
+        else:
+            xdata = self.index(xkey)
+            
+        if ykey == None:
+            ydata = np.hstack([dataobject.data[:,-1]
+                             for dataobject in self.dataobjects])
+            ykey = self.dataobjects[0].info['LabelNames'][-1]
+        else:
+            ydata = self.index(ykey)
+        
+        if ax is None:
+            _, ax = plt.subplots()
+        
+        if 'label' in kwargs.keys():
+            label = kwargs.pop('label')
+        else:
+            label = [d.info['Key'] for d in self.dataobjects]
+        
+        if monitor == None:
+            monitor = ''
+        else:
+            ydata /= self.index(monitor)
+            monitor = "/" + monitor
+        
+        
+        art = ax.plot(xdata, ydata, **kwargs,
+                      label="{}".format(label))
+        
+        ax.set_xlabel(xkey)
+        ax.set_ylabel(ykey + monitor)
+        ax.legend()
+        
+        return art, ax
+                
 
 
 class specfile:

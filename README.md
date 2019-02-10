@@ -22,6 +22,8 @@ Calling
 S = F[3:6]  
 Assumes that you want the first '.1' scan and returns keys '3.1', '4.1', '5.1'
 
+If you request data with different scanned motors is combined this may fail. 
+
 call  
 print(S)  
 to show a summary of the scanned and baseline motors. 
@@ -33,3 +35,10 @@ I = S['APD']
 
 Non-scanned (baseline) motors are accessed as  
 S.get_baseline('chi')
+
+
+S.plot()
+will plot the data. 
+
+
+Examples are shown in more detail in the ipython notebooks.
