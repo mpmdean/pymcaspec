@@ -6,6 +6,12 @@ https://github.com/vasole/pymca
 
 See the notebook for examples
 
+# Installation
+pip install PyMca5  
+git clone https://github.com/mpmdean/pymcaspec.git  
+cd pymcaspec  
+python setup.py install  
+
 # Basic usage 
 create specfile object  
 F = specfile('LO_20180704')
