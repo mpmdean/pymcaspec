@@ -21,7 +21,8 @@ class scan:
         Returns
         ----------
         motors_description : string
-            Description of the motor
+            Description of the motors that were scanned and that were recorded
+            as a baseline.
         """
         motors_description = ''
         for dataobject in self.dataobjects:
@@ -44,7 +45,7 @@ class scan:
         Parameters
         ----------
         key : integer or string
-            Integers label the column you can 0, 1, 2 etc.
+            Integers label the columns to return 0, 1, 2 etc.
             Strings give the name of the scanned motor to index from the scan.
 
         Returns
@@ -104,7 +105,7 @@ class scan:
         If xkey is not specified it is assumed to be index 0
         If ykey is not specified it is assumed to be the last index.
         label can be passed to override the legend label.
-        Otherwise it is the scan
+        Otherwise it is the scan name or key.
         
         Parameters
         ----------
@@ -119,6 +120,8 @@ class scan:
         
         Returns
         --------
+        leg : matplotlib legend object
+            The legend created in the plot
         art : matplotlib artist
             artist object created in plot
         ax : matplotlib axis
@@ -147,9 +150,9 @@ class scan:
         
         ax.set_xlabel('{}'.format(xkey))
         ax.set_ylabel('{}'.format(ykey))
-        ax.legend()
+        leg, ax.legend()
         
-        return art, ax
+        return leg, art, ax
                 
 
 
@@ -220,7 +223,7 @@ class specfile:
         return dataobject
 
     def __getitem__(self, keys):
-        """Assign [] indexing method to try to scan classe instqnc.
+        """Assign [] indexing method to try to index scan class instance.
         
         Parameters
         ----------
