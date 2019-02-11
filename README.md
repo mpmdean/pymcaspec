@@ -7,20 +7,28 @@ https://github.com/vasole/pymca
 See the notebook for examples
 
 # Installation
+```
 pip install PyMca5  
 git clone https://github.com/mpmdean/pymcaspec.git  
 cd pymcaspec  
-python setup.py install  
+python setup.py install
+``` 
 
 # Basic usage 
 create specfile object  
+```
 F = specfile('LO_20180704')
+```
 
-To show the relevent details of the file run  
+To show the relevent details of the file call  
+```
 print(F)
+```
 
-This can be indexed to create scan objects. Either from a single scan index  
+The specfile instance can be indexed to create scan objects. Either from a single scan index  
+```
 S = F['5.1']  
+```
 or from a series of scans  
 S = F[['5.1', '7.1', '8.1']]
 
@@ -31,21 +39,29 @@ Assumes that you want the first '.1' scan and returns keys '3.1', '4.1', '5.1'
 The code assumes that these keys include the same set of scanned motors. Otherwise it will fail. If the combination fails it likely means that it does not make sense to combine the keys. 
 
 call  
+```
 print(S)  
+```
 to show a summary of the scanned and baseline motors. 
 
 The motors can be accessed by indexing their names as   
+```
 H = S['H']  
 I = S['APD']  
+```
 or using the column number starting from zero.   
+```
 H = S[0]  
 I = S[-1] 
-
+```
 Non-scanned (baseline) motors are accessed as  
+```
 S.get_baseline('chi')
+```
 
-
+```
 S.plot()
+```
 will plot the data. 
 
 
