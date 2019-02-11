@@ -17,6 +17,7 @@ python setup.py install
 # Basic usage 
 create specfile object  
 ```
+from pymcaspec import specfile
 F = specfile('LO_20180704')
 ```
 
