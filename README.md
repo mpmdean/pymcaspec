@@ -29,11 +29,15 @@ The specfile instance can be indexed to create scan objects. Either from a singl
 ```
 S = F['5.1']  
 ```
-or from a series of scans  
+or from a series of scans 
+```
 S = F[['5.1', '7.1', '8.1']]
+```
 
 Calling  
+```
 S = F[3:6]  
+```
 Assumes that you want the first '.1' scan and returns keys '3.1', '4.1', '5.1'
 
 The code assumes that these keys include the same set of scanned motors. Otherwise it will fail. If the combination fails it likely means that it does not make sense to combine the keys. 
