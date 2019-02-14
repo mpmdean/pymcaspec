@@ -13,6 +13,11 @@ git clone https://github.com/mpmdean/pymcaspec.git
 cd pymcaspec  
 python setup.py install
 ``` 
+# Additional installation
+```
+conda install jupyterlab
+```
+and install https://github.com/matplotlib/jupyter-matplotlib following the instructions to have interactive plots.  
 
 # Basic usage 
 create specfile object  
