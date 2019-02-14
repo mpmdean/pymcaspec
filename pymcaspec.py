@@ -150,7 +150,7 @@ class scan:
         
         ax.set_xlabel('{}'.format(xkey))
         ax.set_ylabel('{}'.format(ykey))
-        leg, ax.legend()
+        leg = ax.legend()
         
         return leg, art, ax
                 
