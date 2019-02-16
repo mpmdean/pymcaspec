@@ -12,7 +12,7 @@ class scan:
         dataobject_list :  list of PyMca5.PyMcaCore.DataObject.DataObject
             The scan contains these dataobjects/keys
         """
-        self.dataobjects = [dataobject for dataobject in dataobject_list] 
+        self.dataobjects = [dataobject for dataobject in dataobject_list]
 
     def get_description(self):
         """Make string describing motors.
@@ -32,7 +32,7 @@ class scan:
                                    "Scanned Motors are:\n{}\n".format("\t".join(PrimaryNames)) +
                                    "Baseline Motors are:\n{}\n\n".format("\t".join(BaselineNames)))
         return motors_description
-    
+
     def __str__(self):
         return self.get_description()
 
@@ -65,7 +65,7 @@ class scan:
             except:
                 raise Exception("key {} not found".format(key))
 
-            
+
         return datacol
 
     def get_baseline(self, key):
@@ -93,7 +93,7 @@ class scan:
                          for dataobject in self.dataobjects]
         else:
             motor_val =  self.dataobjects[0].info['MotorValues'][index]
-            
+
         return motor_val
 
     def __getitem__(self, key):
@@ -103,15 +103,15 @@ class scan:
     def __iter__(self):
         """Iterating returns a list of scan objects corresponding to individual scans."""
         return iter(scan([d]) for d in self.dataobjects)
-    
+
     def plot(self, ax=None, xkey=0, ykey=-1, monitor=None, **kwargs):
-        """Create x,y plot of the scan data. 
+        """Create x,y plot of the scan data.
         This creates one line per scan.
         If xkey is not specified it is assumed to be index 0
         If ykey is not specified it is assumed to be the last index.
         label can be passed to override the legend label.
         Otherwise it is the scan name or key.
-        
+
         Parameters
         ----------
         xkey : integer or string
@@ -120,9 +120,9 @@ class scan:
             key for depependent axis data
         monitor : string
             key for monitor, which is used to divide y
-        kwargs : 
+        kwargs :
             Key word arguments are passed to ax.plot()
-        
+
         Returns
         --------
         leg : matplotlib legend object
@@ -134,13 +134,13 @@ class scan:
         """
         if ax is None:
             _, ax = plt.subplots()
-        
+
         if isinstance(xkey, int):
             xkey = self.dataobjects[0].info['LabelNames'][xkey]
-        
+
         if isinstance(xkey, int):
             xkey = self.dataobjects[0].info['LabelNames'][xkey]
-    
+
         for s in self:
             try:
                 leg, art, ax = s.plot_combined(ax=ax, xkey=xkey, ykey=ykey,
@@ -148,17 +148,17 @@ class scan:
             except:
                 raise Exception("Tried to index {} and {} in scan {}".format(xkey, ykey,
                                                                           s.dataobjects[0].info['Key']))
-        
+
         return leg, art, ax
-            
+
     def plot_combined(self, ax=None, xkey=0, ykey=-1, monitor=None, **kwargs):
-        """Create x,y plot of the scan data. 
-        This creates one line. 
+        """Create x,y plot of the scan data.
+        This creates one line.
         If xkey is not specified it is assumed to be index 0
         If ykey is not specified it is assumed to be the last index.
         label can be passed to override the legend label.
         Otherwise it is the scan name or key.
-        
+
         Parameters
         ----------
         xkey : integer or string
@@ -167,9 +167,9 @@ class scan:
             key for depependent axis data
         monitor : string
             key for monitor, which is used to divide y
-        kwargs : 
+        kwargs :
             Key word arguments are passed to ax.plot()
-        
+
         Returns
         --------
         leg : matplotlib legend object
@@ -181,37 +181,37 @@ class scan:
             """
         xdata = self.index(xkey)
         ydata = self.index(ykey)
-        
+
         if isinstance(xkey, int):
             xkey = self.dataobjects[0].info['LabelNames'][xkey]
 
         if isinstance(ykey, int):
             ykey = self.dataobjects[0].info['LabelNames'][ykey]
-    
+
         if ax is None:
             _, ax = plt.subplots()
-        
+
         if 'label' in kwargs.keys():
             label = kwargs.pop('label')
         else:
             label = [d.info['Key'] for d in self.dataobjects]
-        
+
         if monitor == None:
             monitor = ''
         else:
             ydata /= self.index(monitor)
             monitor = "/" + monitor
-        
-        
+
+
         art = ax.plot(xdata, ydata, **kwargs,
                       label="{}".format(label))
-        
+
         ax.set_xlabel('{}'.format(xkey))
         ax.set_ylabel('{}'.format(ykey))
         leg = ax.legend()
-        
+
         return leg, art, ax
-                
+
 
 
 class specfile:
@@ -239,7 +239,7 @@ class specfile:
         header = str(self.source.getSourceInfo()['FileHeader'])
         file_description = "Specfile {}\n {} scans\n{}".format(self.filename, self.size, header)
         return file_description
-    
+
     def __str__(self):
         return self.get_description()
 
@@ -282,7 +282,7 @@ class specfile:
 
     def __getitem__(self, keys):
         """Assign [] indexing method to try to index scan class instance.
-        
+
         Parameters
         ----------
         keys : list of keys to index specfile
@@ -292,19 +292,19 @@ class specfile:
             If the indexing fails the string will be appended by '.1'
             If a single string, float or integer is passed it will be
             converted to a list
-            
+
         Returns
         -----
         S : instance of scan class
-            
+
         """
-        
+
         # If keys indexes directly use that
         try:
             return scan([self.index(keys)])
         except:
             pass
-        
+
         # If keys is slice make an interable
         if type(keys) == slice:
             if keys.step == None:
@@ -313,28 +313,3 @@ class specfile:
                 keys = range(keys.start, keys.stop, keys.step)
         # Then try to interate over keys
         return scan([self.index(key) for key in keys])
-
-def get_T_ISR(scan_inst):
-    """ISR specific function to read the temperature.
-
-    Parameters
-    ----------
-    scan_inst : instance of scan class
-        a particular scan created in pymcaspec
-
-    Returns
-    -------
-    TB : float
-        The B temperature sensor
-    TA : float
-        The A temperature sensor
-    """
-    TB, TA = [], []
-    for dataobject in scan_inst.dataobjects:
-        header = dataobject.info['Header']
-        lineX = [line for line in header if '#X' in line][0]
-        tb, ta = lineX.split(' ')[1:4:2]
-        TB.append(float(tb))
-        TA.append(float(ta))
-
-    return np.array(TB), np.array(TA)
