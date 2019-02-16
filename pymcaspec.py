@@ -99,9 +99,61 @@ class scan:
     def __getitem__(self, key):
         """Assign [] indexing method to try to return data associated with a key."""
         return self.index(key)
+
+    def __iter__(self):
+        """Iterating returns a list of scan objects corresponding to individual scans."""
+        return iter(scan([d]) for d in self.dataobjects)
     
     def plot(self, ax=None, xkey=0, ykey=-1, monitor=None, **kwargs):
         """Create x,y plot of the scan data. 
+        This creates one line per scan.
+        If xkey is not specified it is assumed to be index 0
+        If ykey is not specified it is assumed to be the last index.
+        label can be passed to override the legend label.
+        Otherwise it is the scan name or key.
+        
+        Parameters
+        ----------
+        xkey : integer or string
+            key for independent axis data
+        ykey : integer or string
+            key for depependent axis data
+        monitor : string
+            key for monitor, which is used to divide y
+        kwargs : 
+            Key word arguments are passed to ax.plot()
+        
+        Returns
+        --------
+        leg : matplotlib legend object
+            Last legend created in the plot
+        art : matplotlib artist
+            Last artist object created in plot
+        ax : matplotlib axis
+            axis that contains the plotted data
+        """
+        if ax is None:
+            _, ax = plt.subplots()
+        
+        if isinstance(xkey, int):
+            xkey = self.dataobjects[0].info['LabelNames'][xkey]
+        
+        if isinstance(xkey, int):
+            xkey = self.dataobjects[0].info['LabelNames'][xkey]
+    
+        for s in self:
+            try:
+                leg, art, ax = s.plot_combined(ax=ax, xkey=xkey, ykey=ykey,
+                                               monitor=monitor, **kwargs)
+            except:
+                raise Exception("Tried to index {} and {} in scan {}".format(xkey, ykey,
+                                                                          s.dataobjects[0].info['Key']))
+        
+        return leg, art, ax
+            
+    def plot_combined(self, ax=None, xkey=0, ykey=-1, monitor=None, **kwargs):
+        """Create x,y plot of the scan data. 
+        This creates one line. 
         If xkey is not specified it is assumed to be index 0
         If ykey is not specified it is assumed to be the last index.
         label can be passed to override the legend label.
@@ -130,6 +182,12 @@ class scan:
         xdata = self.index(xkey)
         ydata = self.index(ykey)
         
+        if isinstance(xkey, int):
+            xkey = self.dataobjects[0].info['LabelNames'][xkey]
+
+        if isinstance(ykey, int):
+            ykey = self.dataobjects[0].info['LabelNames'][ykey]
+    
         if ax is None:
             _, ax = plt.subplots()
         
