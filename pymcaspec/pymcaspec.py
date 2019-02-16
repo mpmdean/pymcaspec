@@ -207,7 +207,7 @@ class scan:
                       label="{}".format(label))
 
         ax.set_xlabel('{}'.format(xkey))
-        ax.set_ylabel('{}'.format(ykey))
+        ax.set_ylabel('{}'.format(ykey+monitor))
         leg = ax.legend()
 
         return leg, art, ax
@@ -239,6 +239,15 @@ class specfile:
         header = str(self.source.getSourceInfo()['FileHeader'])
         file_description = "Specfile {}\n {} scans\n{}".format(self.filename, self.size, header)
         return file_description
+    
+    def keys(self):
+        """Get all the keys
+        
+        Returns
+        keys : list
+            List of all keys in the keyfile
+        """
+        return self.source.getSourceInfo()['KeyList']
 
     def __str__(self):
         return self.get_description()
@@ -270,7 +279,7 @@ class specfile:
             try:
                 dataobject = self.source.getDataObject(key)
             except:
-                keys = self.source.getSourceInfo()['KeyList']
+                keys = self.keys()
                 found_keys = [k for k in keys if key is k]
                 if len(found_keys) == 1:
                     dataobject = self.source.getDataObject(found_keys[0])
