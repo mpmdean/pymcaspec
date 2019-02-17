@@ -1,6 +1,9 @@
 import PyMca5.PyMcaCore.SpecFileDataSource as SpecFileDataSource
 import numpy as np
 from matplotlib import pyplot as plt
+from itertools import cycle
+
+marker_cycle = cycle(['o', 's', 'p', 'h', 'd', 'v', '^', '>', '<' ])
 
 class scan:
     """Container for scan in spec file"""
@@ -202,6 +205,8 @@ class scan:
             ydata /= self.index(monitor)
             monitor = "/" + monitor
 
+        if 'marker' not in kwargs.keys():
+            kwargs.update({'marker': next(marker_cycle)})
 
         art = ax.plot(xdata, ydata, **kwargs,
                       label="{}".format(label))
@@ -239,10 +244,10 @@ class specfile:
         header = str(self.source.getSourceInfo()['FileHeader'])
         file_description = "Specfile {}\n {} scans\n{}".format(self.filename, self.size, header)
         return file_description
-    
+
     def keys(self):
         """Get all the keys
-        
+
         Returns
         keys : list
             List of all keys in the keyfile
@@ -286,7 +291,7 @@ class specfile:
                 elif len(found_keys) > 1:
                     raise Exception("key {} matches multiple entries in file:\n{}".format(key, found_keys))
                 elif len(found_keys) == 0:
-                    raise Exception("key {} note found".format(key))
+                    raise Exception("key {} not found".format(key))
         return dataobject
 
     def __getitem__(self, keys):
