@@ -3,7 +3,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 from itertools import cycle
 
-marker_cycle = cycle(['o', 's', 'p', 'h', 'd', 'v', '^', '>', '<' ])
+marker_cycle = cycle(['o', 's', 'p', 'h', 'd', 'v', '^', '>', '<'])
+
 
 class scan:
     """Container for scan in spec file"""
@@ -32,8 +33,11 @@ class scan:
             PrimaryNames = dataobject.info['LabelNames']
             BaselineNames = dataobject.info['MotorNames']
             motors_description += ("Key: {}\n".format(dataobject.info['Key']) +
-                                   "Scanned Motors are:\n{}\n".format("\t".join(PrimaryNames)) +
-                                   "Baseline Motors are:\n{}\n\n".format("\t".join(BaselineNames)))
+                                   "Scanned Motors are:\n{}\n".format(
+                                   "\t".join(PrimaryNames)) +
+                                   "Baseline Motors are:\n{}\n\n".format(
+                                   "\t".join(BaselineNames))
+                                   )
         return motors_description
 
     def __str__(self):
@@ -57,17 +61,16 @@ class scan:
             1D array of data corresponding to key
         """
         try:
-            datacol = np.hstack([dataobject.data[:,key]
-                             for dataobject in self.dataobjects])
-        except:
+            datacol = np.hstack([dataobject.data[:, key]
+                                 for dataobject in self.dataobjects])
+        except IndexError:
             PrimaryNames = self.dataobjects[0].info['LabelNames']
             try:
                 index = [i for i, k in enumerate(PrimaryNames) if key == k][0]
-                datacol = np.hstack([dataobject.data[:,index]
-                                 for dataobject in self.dataobjects])
-            except:
-                raise Exception("key {} not found".format(key))
-
+                datacol = np.hstack([dataobject.data[:, index]
+                                    for dataobject in self.dataobjects])
+            except IndexError:
+                raise IndexError("key {} not found".format(key))
 
         return datacol
 
@@ -77,34 +80,38 @@ class scan:
         Parameters
         ----------
         key : string
-            The name of the baseline (i.e. non scanned) motor to index from the scan.
+            The name of the baseline (i.e. non scanned)
+            motor to index from the scan.
 
         Returns
         ----------
         motor_val : float or list of floats
-            The values of the motor corresponding to key for each scan in the series.
+            The values of the motor corresponding to key
+            for each scan in the series.
 
         """
         MotorNames = self.dataobjects[0].info['MotorNames']
         try:
             index = [i for i, k in enumerate(MotorNames) if key == k][0]
-        except:
-            raise Exception("key {} not found".format(key))
+        except IndexError:
+            raise IndexError("key {} not found".format(key))
 
         if len(self.dataobjects) > 1:
             motor_val = [dataobject.info['MotorValues'][index]
                          for dataobject in self.dataobjects]
         else:
-            motor_val =  self.dataobjects[0].info['MotorValues'][index]
+            motor_val = self.dataobjects[0].info['MotorValues'][index]
 
         return motor_val
 
     def __getitem__(self, key):
-        """Assign [] indexing method to try to return data associated with a key."""
+        """Assign [] indexing method to try to return data
+        associated with a key."""
         return self.index(key)
 
     def __iter__(self):
-        """Iterating returns a list of scan objects corresponding to individual scans."""
+        """Iterating returns a list of scan objects corresponding
+        to individual scans."""
         return iter(scan([d]) for d in self.dataobjects)
 
     def plot(self, ax=None, xkey=0, ykey=-1, monitor=None, **kwargs):
@@ -148,9 +155,10 @@ class scan:
             try:
                 leg, art, ax = s.plot_combined(ax=ax, xkey=xkey, ykey=ykey,
                                                monitor=monitor, **kwargs)
-            except:
-                raise Exception("Tried to index {} and {} in scan {}".format(xkey, ykey,
-                                                                          s.dataobjects[0].info['Key']))
+            except IndexError:
+                k = s.dataobjects[0].info['Key']
+                info = '{} and {} in scan {}'.format(xkey, ykey, k)
+                raise IndexError('Tried to index ' + info)
 
         return leg, art, ax
 
@@ -199,7 +207,7 @@ class scan:
         else:
             label = [d.info['Key'] for d in self.dataobjects]
 
-        if monitor == None:
+        if monitor is None:
             monitor = ''
         else:
             ydata /= self.index(monitor)
@@ -218,7 +226,6 @@ class scan:
         return leg, art, ax
 
 
-
 class specfile:
     """Container for specfile"""
     def __init__(self, filename):
@@ -230,20 +237,21 @@ class specfile:
             Path to the spec file
         """
         self.filename = filename
-        self.source =  SpecFileDataSource.SpecFileDataSource(filename)
+        self.source = SpecFileDataSource.SpecFileDataSource(filename)
 
     def get_description(self):
         """Make string showing file header and number of scans
 
         Returns
         ----------
-        file_description : string
+        file_desc : string
             File size and header
         """
         self.size = self.source.getSourceInfo()['Size']
         header = str(self.source.getSourceInfo()['FileHeader'])
-        file_description = "Specfile {}\n {} scans\n{}".format(self.filename, self.size, header)
-        return file_description
+        file_desc = "Specfile {}\n {} scans\n{}".format(self.filename,
+                                                        self.size, header)
+        return file_desc
 
     def keys(self):
         """Get all the keys
@@ -277,21 +285,23 @@ class specfile:
         """
         try:
             dataobject = self.source.getDataObject(key)
-        except:
+        except (KeyError, AttributeError):
             key = str(key)
             if '.' not in key:
                 key += '.1'
             try:
                 dataobject = self.source.getDataObject(key)
-            except:
+            except (KeyError, AttributeError, SyntaxError):
                 keys = self.keys()
                 found_keys = [k for k in keys if key is k]
                 if len(found_keys) == 1:
                     dataobject = self.source.getDataObject(found_keys[0])
                 elif len(found_keys) > 1:
-                    raise Exception("key {} matches multiple entries in file:\n{}".format(key, found_keys))
+                    msg = ("key {} matches multiple ".format(key) +
+                           "entries in file:\n{}".format(found_keys))
+                    raise IndexError(msg)
                 elif len(found_keys) == 0:
-                    raise Exception("key {} not found".format(key))
+                    raise IndexError("key {} not found".format(key))
         return dataobject
 
     def __getitem__(self, keys):
@@ -316,12 +326,12 @@ class specfile:
         # If keys indexes directly use that
         try:
             return scan([self.index(keys)])
-        except:
+        except (KeyError, SyntaxError, AttributeError, IndexError):
             pass
 
         # If keys is slice make an interable
         if type(keys) == slice:
-            if keys.step == None:
+            if keys.step is None:
                 keys = range(keys.start, keys.stop)
             else:
                 keys = range(keys.start, keys.stop, keys.step)
