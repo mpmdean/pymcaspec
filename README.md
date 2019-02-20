@@ -23,7 +23,7 @@ and install https://github.com/matplotlib/jupyter-matplotlib following the instr
 create specfile object  
 ```
 from pymcaspec import specfile
-F = specfile('LO_20180704')
+F = specfile('<name of file>')
 ```
 
 To show the relevent details of the file call  
