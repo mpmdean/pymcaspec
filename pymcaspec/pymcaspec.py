@@ -110,9 +110,10 @@ class scan:
         return self.index(key)
 
     def __iter__(self):
-        """Iterating returns a list of scan objects corresponding
+        """Iterating returns scan objects corresponding
         to individual scans."""
-        return iter(scan([d]) for d in self.dataobjects)
+        for d in self.dataobjects:
+            yield scan([d])
 
     def plot(self, ax=None, xkey=0, ykey=-1, monitor=None, **kwargs):
         """Create x,y plot of the scan data.
@@ -326,7 +327,7 @@ class specfile:
         # If keys indexes directly use that
         try:
             return scan([self.index(keys)])
-        except (KeyError, SyntaxError, AttributeError, IndexError):
+        except (KeyError, SyntaxError, AttributeError, IndexError, ValueError):
             pass
 
         # If keys is slice make an interable
