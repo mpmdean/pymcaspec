@@ -165,6 +165,25 @@ class scan:
 
         return leg, art, ax
 
+    def get_hkl(self):
+        """Get hkl value of scans
+
+        returns
+        --------
+        hkl : tuple or list of tuples
+            (h, k, l) or a list of (h, k, l) values
+            depending on whether all scans have the same value.
+        """
+        hkls = [d.info['hkl'] for d in self.dataobjects]
+        if all(h == hkls[0] for h in hkls):
+            hkl = hkls[0]
+        else:
+            raise Warning("Different scans have different (h, k, l) values")
+            hkl = hkls
+
+        return hkl
+
+
     def plot_combined(self, ax=None, xkey=0, ykey=-1, monitor=None, **kwargs):
         """Create x,y plot of the scan data.
         This creates one line.
