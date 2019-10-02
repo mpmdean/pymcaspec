@@ -32,6 +32,8 @@ class scan:
         for dataobject in self.dataobjects:
             PrimaryNames = dataobject.info['LabelNames']
             BaselineNames = dataobject.info['MotorNames']
+            if type(BaselineNames) is not list:
+                BaselineNames = ['no baseline motors']
             motors_description += ("Key: {}\n".format(dataobject.info['Key']) +
                                    "Scanned Motors are:\n{}\n".format(
                                    "\t".join(PrimaryNames)) +
