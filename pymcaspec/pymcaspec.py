@@ -326,6 +326,43 @@ class specfile:
                     raise IndexError("key {} not found".format(key))
         return dataobject
 
+    def get_MCA(self, key):
+        """Get MCA data
+
+        Params
+        ------
+        key : string
+            key for source following the rules below
+            e.g. 1.1.1
+
+        Returns
+        ------
+        data : array
+            data array
+        """
+        do = self.source._getMcaData(key)
+        data = do.data
+
+        return data
+
+
+    def get_all_MCA(self):
+        """Get all the MCA data for channel 1
+
+        Params
+        ------
+        key : string
+            key for source following the rules below
+            e.g. 1.1.1
+
+        Returns
+        ------
+        dataset : array
+            dat
+        """
+        dataset = np.array([self.get_MCA(key + '.1') for key in self.keys()])
+        return dataset
+
     def __getitem__(self, keys):
         """Assign [] indexing method to try to index scan class instance.
 
@@ -359,3 +396,9 @@ class specfile:
                 keys = range(keys.start, keys.stop, keys.step)
         # Then try to interate over keys
         return scan([self.index(key) for key in keys])
+
+    # Append info to get_MCA docustring
+    from PyMca5.PyMcaCore.SpecFileLayer import SpecFileLayer
+    alldoc = SpecFileLayer.LoadSource.__doc__
+    adddoc = alldoc.split("valid for ScanType==SCAN or MESH or MCA")[1]
+    get_MCA.__doc__ += adddoc
