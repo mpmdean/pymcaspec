@@ -8,5 +8,5 @@ setup(name='pymcaspec',
       author_email='mdean@bnl.gov',
       packages=['pymcaspec'],
       license='MIT',
-      requires=['numpy', 'matplotlib', 'PyMca5'],
+      requires=['numpy', 'matplotlib', 'PyMca5', 'pymca'],
       zip_safe=False)
