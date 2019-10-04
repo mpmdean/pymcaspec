@@ -7,7 +7,7 @@ ARG NB_GID="100"
 USER root
 
 RUN pip install --upgrade pip
-RUN pip install numpy fisx h5py
-RUN apt-get install pymca
+RUN pip install numpy fisx h5py cython
+RUN pip install pymca
 
 RUN pip install pymcaspec
