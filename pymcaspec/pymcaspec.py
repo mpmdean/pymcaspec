@@ -345,20 +345,13 @@ class specfile:
 
         return data
 
-
     def get_all_MCA(self):
         """Get all the MCA data for channel 1
-
-        Params
-        ------
-        key : string
-            key for source following the rules below
-            e.g. 1.1.1
 
         Returns
         ------
         dataset : array
-            dat
+            data
         """
         dataset = np.array([self.get_MCA(key + '.1') for key in self.keys()])
         return dataset
