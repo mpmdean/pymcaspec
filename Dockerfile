@@ -8,7 +8,7 @@ USER ${NB_USER}
 
 USER root
 RUN sudo apt-get update
-RUN apt-get install -y mesa-common-dev libglu1-mesa-dev freeglut3-dev
+RUN apt-get install -y mesa-common-dev libglu1-mesa-dev
 USER ${NB_USER}
 
 RUN pip install --upgrade pip
