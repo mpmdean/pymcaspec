@@ -11,8 +11,5 @@ USER ${NB_USER}
 
 RUN pip install --upgrade pip
 RUN pip install --user numpy fisx h5py cython
-
-USER root
-RUN apt-get install pymca
-USER ${NB_USER}
+RUN pip install --user --no-binary :all: PyMca5
 RUN python setup.py install 
