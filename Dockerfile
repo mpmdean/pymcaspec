@@ -14,4 +14,4 @@ USER ${NB_USER}
 
 RUN pip install --upgrade pip
 RUN pip install --user numpy fisx h5py cython
-RUN pip install --user --no-binary :all: pymcaspec
+RUN python setup.py install 
