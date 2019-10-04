@@ -4,7 +4,7 @@ Wrapper around PyMca for parsing spec files
 This is dependent on the PyMca package
 https://github.com/vasole/pymca
 
-See the notebook for examples
+See the notebooks in the examples folder for how this works.
 
 # Installation
 ```
@@ -18,6 +18,10 @@ python setup.py install
 conda install jupyterlab
 ```
 and install https://github.com/matplotlib/jupyter-matplotlib following the instructions to have interactive plots.  
+
+# Mybinder
+You can try out the repo here
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mpmdean/pymcaspec/master)
 
 # Basic usage 
 create specfile object  
