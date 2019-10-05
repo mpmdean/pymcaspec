@@ -27,6 +27,30 @@ def get_T_ISR(scan_inst):
     return np.array(TB), np.array(TA)
 
 
+def get_merixE(F):
+    """Read out the values of merixE of sector 27 style MYT E_dataset
+
+    Parameters
+    ----------
+    F : specfile instance
+        The specfile loaded as specfile(<filename>)
+
+    Returns
+    -------
+    merixE : array
+        All the merix energies
+
+    """
+    def get_energy_val(key):
+        val = next(float(line[4:])
+                   for line in F.source.getDataObject(key).info['Header']
+                   if line[:3] == '#PV')
+        return val
+
+    merixE = np.array([get_energy_val(key) for key in F.keys()])
+    return merixE
+
+
 def calculate_dEdChan(d, R, edgeEn, mmsperchannel=50e-3):
     """Compute the energy per Mythen Channel
 
@@ -165,13 +189,14 @@ def bin_mythen(E_dataset, M_dataset, mythen_dataset,
     choose = I > 0
     E = E[choose]
     I = I[choose]
+    M = M[choose]
     return E, I, M
 
 
 def bin_RIXS(central_Es, central_Ms, mythen_dataset,
              magicchannel, dEdchan,
-             min_chan, max_chan, threshold,
-             bin_edges=None, binstep=None):
+             min_chan, max_chan, threshold, binstep,
+             bin_edges=None):
     """Create a RIXS spectrum from sector 27 data
 
     Parameters
@@ -213,6 +238,8 @@ def bin_RIXS(central_Es, central_Ms, mythen_dataset,
 
     E_dataset, M_dataset = construct_E_M(central_Es, central_Ms,
                                          mythen_dataset, magicchannel, dEdchan)
+    if binstep is None:
+        binstep = dEdchan
 
     E, I, M = bin_mythen(E_dataset, M_dataset, mythen_dataset,
                          bin_edges=bin_edges, binstep=binstep)
