@@ -53,7 +53,7 @@ def calculate_dEdChan(d, R, edgeEn, mmsperchannel=50e-3):
     return dEdchan
 
 
-def clean_mythen_data(mythen_dataset, min_chan, max_chan):
+def clean_mythen_data(mythen_dataset, min_chan, max_chan, threshold):
     """Set pixels to zero based on channel range and threshold
     Parameters
     ---------
@@ -63,15 +63,17 @@ def clean_mythen_data(mythen_dataset, min_chan, max_chan):
         Minimum channel -- those below this are set to zero
     max_chan : integer
         Minimum channel -- those below this are set to zero
+    threshold : float
+        set values above this to zero
 
     Returns
     -------
     mythen_dataset  : array
         The data in shape (pixels,  channels) after cleaning
     """
-    mtmythen_dataset[:, :min_chan] = 0
+    mythen_dataset[:, :min_chan] = 0
     mythen_dataset[:, max_chan:] = 0
-    mythen_dataset[mythen_dataset>threshold] = 0
+    mythen_dataset[mythen_dataset > threshold] = 0
     return mythen_dataset
 
 
