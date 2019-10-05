@@ -119,7 +119,8 @@ def construct_E_M(central_Es, central_Ms, mythen_dataset,
     return E_dataset, M_dataset
 
 
-def bin_mythen(E_dataset, M_dataset, mythen_dataset, bin_edges=None, binstep=None):
+def bin_mythen(E_dataset, M_dataset, mythen_dataset,
+    bin_edges=None, binstep=None):
     """
     Bin the mythen data
 
@@ -164,4 +165,55 @@ def bin_mythen(E_dataset, M_dataset, mythen_dataset, bin_edges=None, binstep=Non
     choose = I > 0
     E = E[choose]
     I = I[choose]
+    return E, I, M
+
+
+def bin_RIXS(central_Es, central_Ms, mythen_dataset,
+             magicchannel, dEdchan,
+             min_chan, max_chan, threshold,
+             bin_edges=None, binstep=None):
+    """Create a RIXS spectrum from sector 27 data
+
+    Parameters
+    ----------
+    central_Es : array
+        The energy of the magicchannel for each mythen readout in keV
+    central_Ms : array
+        The monitor for each mythen readout
+    mythen_dataset  : array
+        The mythen data in shape (pixels,  channels)
+        This is used to determine the number of channels
+    magicchannel : float
+        The magic rerference channel on the mythen
+    dEdchan  : float
+        Energy per Mythen channel in keV
+    min_chan : integer
+        Minimum channel -- those below this are set to zero
+    max_chan : integer
+        Minimum channel -- those below this are set to zero
+    threshold : float
+        set values above this to zero
+    bin_edges : array or None
+        The energy bin edges for the binning
+        If none it will be constructed based on the data and binstep
+    binstep : float
+        The energy difference between different points for binning
+
+    returns
+    -------
+    E : array
+        Energies coresonding to bin centers
+    I : array
+        Intensities
+    M : array
+        Montior
+    """
+    mythen_dataset = clean_mythen_data(mythen_dataset,
+                                       min_chan, max_chan, threshold)
+
+    E_dataset, M_dataset = construct_E_M(central_Es, central_Ms,
+                                         mythen_dataset, magicchannel, dEdchan)
+
+    E, I, M = bin_mythen(E_dataset, M_dataset, mythen_dataset,
+                         bin_edges=bin_edges, binstep=binstep)
     return E, I, M
