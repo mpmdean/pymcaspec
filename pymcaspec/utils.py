@@ -95,8 +95,10 @@ def clean_mythen_data(mythen_dataset, min_chan, max_chan, threshold):
     mythen_dataset  : array
         The data in shape (pixels,  channels) after cleaning
     """
-    mythen_dataset[:, :min_chan] = 0
-    mythen_dataset[:, max_chan:] = 0
+    indices = np.arange(1, mythen_dataset.shape[1]+1)
+    choose = np.logical_and(indices >= min_chan, indices <= max_chan)
+    mythen_dataset[:, choose] = 0
+    mythen_dataset[:, choose] = 0
     mythen_dataset[mythen_dataset > threshold] = 0
     return mythen_dataset
 
