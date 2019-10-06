@@ -146,7 +146,7 @@ def construct_E_M(central_Es, central_Ms, mythen_dataset,
 
 
 def bin_mythen(E_dataset, M_dataset, mythen_dataset,
-    bin_edges=None, binstep=None):
+               bin_edges=None, binstep=None):
     """
     Bin the mythen data
 
@@ -174,6 +174,8 @@ def bin_mythen(E_dataset, M_dataset, mythen_dataset,
         Intensities
     M : array
         Montior
+    N : array
+        Number of contributing mythen pixels
     """
     E_all = E_dataset.ravel()
     I_all = mythen_dataset.ravel()
@@ -188,11 +190,14 @@ def bin_mythen(E_dataset, M_dataset, mythen_dataset,
     I, _ = np.histogram(E_all, bins=bin_edges, weights=I_all)
     M, _ = np.histogram(E_all, bins=bin_edges, weights=M_all)
 
+    N, _ = np.histogram(E_all[I_all > 0], bins=bin_edges)
+
     choose = I > 0
     E = E[choose]
     I = I[choose]
     M = M[choose]
-    return E, I, M
+    N = N[choose]
+    return E, I, M, N
 
 
 def bin_RIXS(central_Es, central_Ms, mythen_dataset,
@@ -243,6 +248,6 @@ def bin_RIXS(central_Es, central_Ms, mythen_dataset,
     if binstep is None:
         binstep = dEdchan
 
-    E, I, M = bin_mythen(E_dataset, M_dataset, mythen_dataset,
-                         bin_edges=bin_edges, binstep=binstep)
-    return E, I, M
+    E, I, M, N = bin_mythen(E_dataset, M_dataset, mythen_dataset,
+                            bin_edges=bin_edges, binstep=binstep)
+    return E, I, M, N
