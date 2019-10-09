@@ -1,5 +1,5 @@
 # pymcaspec
-Wrapper around PyMca for parsing spec files
+Wrapper around PyMca for parsing spec files. Further convenience tools are available for binning RIXS spectra. 
 
 This is dependent on the PyMca package
 https://github.com/vasole/pymca
