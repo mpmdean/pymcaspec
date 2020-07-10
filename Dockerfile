@@ -1,4 +1,4 @@
-FROM jupyter/scipy-notebook:cf6258237ff9
+FROM jupyter/scipy-notebook:3a2b07f19191
 
 # Copy repo into ${HOME}, make user own $HOME
 USER root
