@@ -1,4 +1,4 @@
-FROM jupyter/scipy-notebook:3a2b07f19191
+FROM jdocker pull jupyter/scipy-notebook@sha256:3a2b07f1919199785048b2230d98f11ad7a1ca914b17e1d722b6ea25c461af64
 
 # Copy repo into ${HOME}, make user own $HOME
 USER root
