@@ -148,7 +148,7 @@ def construct_E_M(central_Es, central_Ms, mythen_dataset,
 def bin_mythen(E_dataset, M_dataset, mythen_dataset,
                bin_edges=None, binstep=None):
     """
-    Bin the mythen data
+    Bin the mythen data. np.NaN values will be ignored.
 
     Parameters
     ---------
@@ -180,6 +180,13 @@ def bin_mythen(E_dataset, M_dataset, mythen_dataset,
     E_all = E_dataset.ravel()
     I_all = mythen_dataset.ravel()
     M_all = M_dataset.ravel()
+
+    keep_indices = np.logical_and.reduce([np.isfinite(E_all),
+                                          np.isfinite(I_all),
+                                          np.isfinite(M_all)])
+    E_all = E_all[keep_indices]
+    I_all = I_all[keep_indices]
+    M_all = M_all[keep_indices]
 
     if bin_edges is None:
         bin_edges = np.arange(E_all.min()-binstep/2 - 1e-6,
