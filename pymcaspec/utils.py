@@ -51,30 +51,30 @@ def get_merixE(F):
     return merixE
 
 
-def calculate_dEdChan(d, R, edgeEn, mmsperchannel=50e-3):
+def calculate_energy_per_pixel(d, R, energy_edge, mmsperchannel=50e-3):
     """Compute the energy per Mythen Channel
 
     Parameters
     ----------
     d : float
-        Lattice spacing in Angstromes
+        Lattice spacing in Angstroms
     R : float
         Analyer distance in mm
-    edgeEn : float
+    energy_edge : float
         Energy of the edge in keV
     mmsperchannel = 50e-3  #mm
 
     Returns
     --------
-    dEdchan : float
+    energy_per_pixel : float
         Energy per Mythen channel in keV
     """
     hbarc = 2*np.pi*1.973269718  # keV/A
-    EB = hbarc/(2*d)  # backscattering energy (keV)
-    thetaB = np.arcsin(EB/edgeEn)  # analyzer theta Bragg angle in rad
-    dEdr = (edgeEn/(2*R))/np.tan(thetaB)  # keV/mm
-    dEdchan = dEdr*mmsperchannel  # keV/channel
-    return dEdchan
+    energy_backscattering = hbarc/(2*d)  # keV
+    thetaBragg = np.arcsin(energy_backscattering/energy_edge)  # rad
+    energy_per_pixel = ((energy_edge*mmsperchannel)
+                        / (2*R*np.tan(thetaBragg)))
+    return energy_per_pixel
 
 
 def clean_mythen_data(mythen_dataset, min_chan, max_chan, threshold):
@@ -95,7 +95,7 @@ def clean_mythen_data(mythen_dataset, min_chan, max_chan, threshold):
     mythen_dataset  : array
         The data in shape (pixels,  channels) after cleaning
     """
-    indices = np.arange(1, mythen_dataset.shape[1]+1)
+    indices = np.arange(1, mythen_dataset.shape[1] + 1)
     choose = np.logical_or(indices < min_chan, indices > max_chan)
     mythen_dataset[:, choose] = 0
     mythen_dataset[:, choose] = 0
@@ -104,7 +104,7 @@ def clean_mythen_data(mythen_dataset, min_chan, max_chan, threshold):
 
 
 def construct_E_M(central_Es, central_Ms, mythen_dataset,
-                  magicchannel, dEdchan):
+                  magicchannel, energy_per_pixel):
     """Create energy and monitor values
     corresponding to the a mythen_dataset
 
@@ -119,7 +119,7 @@ def construct_E_M(central_Es, central_Ms, mythen_dataset,
         This is used to determine the number of channels
     magicchannel : float
         The magic rerference channel on the mythen
-    dEdchan  : float
+    energy_per_pixel  : float
         Energy per Mythen channel in keV
 
     Returns
@@ -135,7 +135,7 @@ def construct_E_M(central_Es, central_Ms, mythen_dataset,
     E_dataset = []
     M_dataset = []
     for central_E, central_M in zip(central_Es, central_Ms):
-        E_array = dEdchan*(magicchannel-indices) + central_E
+        E_array = energy_per_pixel*(magicchannel - indices) + central_E
 
         E_dataset.append(E_array)
         M_dataset.append(indices*0 + central_M)
@@ -146,7 +146,7 @@ def construct_E_M(central_Es, central_Ms, mythen_dataset,
 
 
 def bin_mythen(E_dataset, M_dataset, mythen_dataset,
-               bin_edges=None, binstep=None):
+               bin_edges):
     """
     Bin the mythen data. np.NaN values will be ignored.
 
@@ -162,9 +162,6 @@ def bin_mythen(E_dataset, M_dataset, mythen_dataset,
         The mythen data in shape (pixels,  channels)
     bin_edges : array or None
         The energy bin edges for the binning
-        If none it will be constructed based on the data and binstep
-    binstep : float
-        The energy difference between different points for binning
 
     returns
     -------
@@ -184,33 +181,23 @@ def bin_mythen(E_dataset, M_dataset, mythen_dataset,
     keep_indices = np.logical_and.reduce([np.isfinite(E_all),
                                           np.isfinite(I_all),
                                           np.isfinite(M_all)])
+
     E_all = E_all[keep_indices]
     I_all = I_all[keep_indices]
     M_all = M_all[keep_indices]
 
-    if bin_edges is None:
-        bin_edges = np.arange(E_all.min()-binstep/2 - 1e-6,
-                              E_all.max()+binstep/2 + 1e-6,
-                              binstep)
-
-    E = (bin_edges[1:] + bin_edges[:-1])/2
     I, _ = np.histogram(E_all, bins=bin_edges, weights=I_all)
     M, _ = np.histogram(E_all, bins=bin_edges, weights=M_all)
 
     N, _ = np.histogram(E_all[I_all > 0], bins=bin_edges)
-
-    choose = I > 0
-    E = E[choose]
-    I = I[choose]
-    M = M[choose]
-    N = N[choose]
+    
+    E = (bin_edges[:-1] + bin_edges[1:])/2
     return E, I, M, N
 
 
 def bin_RIXS(central_Es, central_Ms, mythen_dataset,
-             magicchannel, dEdchan,
-             min_chan, max_chan, threshold, binstep,
-             bin_edges=None):
+             magicchannel, energy_per_pixel,
+             min_chan=-np.inf, max_chan=np.inf, threshold=np.inf, bin_edges=None):
     """Create a RIXS spectrum from sector 27 data
 
     Parameters
@@ -224,19 +211,18 @@ def bin_RIXS(central_Es, central_Ms, mythen_dataset,
         This is used to determine the number of channels
     magicchannel : float
         The magic rerference channel on the mythen
-    dEdchan  : float
+    energy_per_pixel  : float
         Energy per Mythen channel in keV
+    bin_edges : array or None
+        The energy bin edges for the binning
+        If none it will be constructed based on the data.
     min_chan : integer
         Minimum channel -- those below this are set to zero
     max_chan : integer
         Minimum channel -- those below this are set to zero
     threshold : float
         set values above this to zero
-    bin_edges : array or None
-        The energy bin edges for the binning
-        If none it will be constructed based on the data and binstep
-    binstep : float
-        The energy difference between different points for binning
+
 
     returns
     -------
@@ -247,14 +233,20 @@ def bin_RIXS(central_Es, central_Ms, mythen_dataset,
     M : array
         Montior
     """
+    if bin_edges is None:
+        step = np.mean(np.abs(np.diff(central_Es)))
+        full_E_range = np.concatenate([[central_Es.min() - step],
+                                       central_Es,
+                                       [central_Es.max() + step]])
+        
+        bin_edges = (full_E_range[:-1] + full_E_range[1:])/2
+
     mythen_dataset = clean_mythen_data(mythen_dataset,
                                        min_chan, max_chan, threshold)
 
     E_dataset, M_dataset = construct_E_M(central_Es, central_Ms,
-                                         mythen_dataset, magicchannel, dEdchan)
-    if binstep is None:
-        binstep = dEdchan
+                                         mythen_dataset, magicchannel, energy_per_pixel)
 
     E, I, M, N = bin_mythen(E_dataset, M_dataset, mythen_dataset,
-                            bin_edges=bin_edges, binstep=binstep)
+                            bin_edges)
     return E, I, M, N
