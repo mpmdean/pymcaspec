@@ -374,7 +374,6 @@ class specfile:
         S : instance of scan class
 
         """
-
         # If keys indexes directly use that
         try:
             return scan([self.index(keys)])
@@ -383,12 +382,34 @@ class specfile:
 
         # If keys is slice make an interable
         if type(keys) == slice:
-            if keys.step is None:
-                keys = range(keys.start, keys.stop)
+            start = keys.start
+            stop = keys.stop
+            step = keys.step
+            # reassign negative indices if needed
+            if start < 0:
+                size = self.source.getSourceInfo()['Size']
+                start = size + 1 + start
+            if keys.stop < 0:
+                size = self.source.getSourceInfo()['Size']
+                stop = size + 1 + stop
+            if step is None:
+                keys = range(start, stop)
             else:
-                keys = range(keys.start, keys.stop, keys.step)
-        # Then try to interate over keys
+                keys = range(start, stop, step)
+                
         return scan([self.index(key) for key in keys])
+
+
+    def __iter__(self):
+        all_scans = []
+        for key in self.keys():
+            try:
+                all_scans.append(self[key])
+            except TypeError:
+                pass
+
+        yield from all_scans
+
 
     # Append info to get_MCA docustring
     from PyMca5.PyMcaCore.SpecFileLayer import SpecFileLayer
